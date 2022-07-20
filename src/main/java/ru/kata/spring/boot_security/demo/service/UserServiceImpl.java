@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        ru.kata.spring.boot_security.demo.model.User user = userDAO.findByName(username);
+        ru.kata.spring.boot_security.demo.model.User user = userDAO.getUserByName(username);
         if (user == null) {
             throw new UsernameNotFoundException("Пользователь не найден");
         } else {

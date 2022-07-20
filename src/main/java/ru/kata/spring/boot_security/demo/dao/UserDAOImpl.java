@@ -7,43 +7,58 @@ import ru.kata.spring.boot_security.demo.model.User;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import java.security.Principal;
 import java.util.List;
 
 @Repository
 public class UserDAOImpl implements UserDAO {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    EntityManager entityManager;
+    private final RoleDAO roleDao;
 
-    public List<User> getAllUsers() {
-        return entityManager.createQuery("SELECT c FROM User c", User.class).getResultList();
+    public UserDAOImpl(RoleDAO roleDao) {
+        this.roleDao = roleDao;
     }
 
-
-    public void save(User user) {
-         entityManager.persist(user);
+    @Override
+    public void createUser(User user) {
+        user.setRoles(roleDao.setRole(user.getRoleInd()));
+        entityManager.persist(user);
     }
 
-
-    public User findById(Long id) {
+    @Override
+    public User readUser(Long id) {
         return entityManager.find(User.class, id);
     }
 
-
-    public User update(User user, Long id) {
-        return entityManager.merge(user);
+    @Override
+    public void updateUser(User user) {
+        user.setRoles(roleDao.setRole(user.getRoleInd()));
+        entityManager.merge(user);
     }
 
-
-    public void delete(Long id) {
+    @Override
+    public void deleteUser(Long id) {
         entityManager.remove(entityManager.find(User.class, id));
     }
 
     @Override
-    public User findByName(String username) {
-        TypedQuery<User> query = entityManager.createQuery("SELECT u from User u WHERE u.username=:username"
-                ,User.class);
-        return query.setParameter("username", username).getSingleResult();
+    public User getUserByName(String name) {
+        TypedQuery<User> q = entityManager.createQuery("select u from User u where u.name = :name", User.class);
+        return q.setParameter("name", name).getSingleResult();
+    }
+
+    @Override
+    public List<User> allUsers() {
+        return entityManager.createQuery("select u from User u", User.class).getResultList();
+    }
+
+    @Override
+    public boolean isAllowed(Long id, Principal principal) {
+        User user = getUserByName(principal.getName());
+        return user.getId() == id || user.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().contains("ADMIN"));
     }
 
 

@@ -1,8 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+          integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
     <title>Admin Panel</title>
 </head>
 <body>
@@ -10,6 +14,8 @@
 <div th:align="center" th:each="u:${allUsers}">
     <br>
     <a th:href="@{/admin/{id}(id=${u.getId()})}" th:text="${u.getUsername()}">user</a>
+    <br>
+    <a th:href="@{/admin/{id}(id=${u.getId()})}" th:text="${u.getUserSecondName()}">user</a>
     <br/>
     <a th:href="@{/admin/{id}/update(id=${u.getId()})}">Update</a>
     <form th:method="DELETE" th:action="@{/admin/{id}(id=${u.getId()})}">

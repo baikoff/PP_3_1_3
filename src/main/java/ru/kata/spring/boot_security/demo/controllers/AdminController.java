@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,57 +13,63 @@ import java.security.Principal;
 @RequestMapping("/")
 public class AdminController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService service;
 
-      public AdminController(UserService userService) {
-        this.userService = userService;
-    }
-
-    @GetMapping("user")
-    public String index(Principal principal, Model model) {
-        User user = userService.findBiName(principal.getName());
-          model.addAttribute("userInfo", user);
-        return "index";
-    }
 
     @GetMapping("/admin")
-    public String admin(Model model) {
-          model.addAttribute("allUsers", userService.getAllUsers());
-        return "admin/users";
+    public String admin(Model model, Principal principal) {
+        model.addAttribute("users", service.allUsers());
+        model.addAttribute("thisUser", service.getUserByName(principal.getName()));
+        model.addAttribute("newUser", new User());
+        return "/admin/admin_panel";
     }
 
-    @GetMapping("admin/{id}")
-    public String show(@PathVariable("id") Long id, Model model){
-          model.addAttribute("userById", userService.findById(id));
-          return "admin/show";
+    @GetMapping("/index/{id}")
+    public String show(@PathVariable("id") Long id, Model model, Principal principal) {
+        if (!service.isAllowed(id, principal)) {
+            id = service.getUserByName(principal.getName()).getId();
+            model.addAttribute(service.getUserByName(principal.getName()));
+        } else {
+            model.addAttribute(service.readUser(id));
+        }
+        return "/index";
     }
 
-    @GetMapping("admin/new")
-    public String newUser(@ModelAttribute("newUser") User user){
-          return "admin/new";
+    @GetMapping("/index")
+    public void userInfo(Principal principal, Model model) {
+        User user = service.getUserByName(principal.getName());
+        model.addAttribute(user);
+        show(user.getId(), model, principal);
     }
 
-    @PostMapping()
-    public String create(@ModelAttribute("redirectAll") User user) {
-        userService.saveUser(user);
-        return "redirect:/admin";
+    @GetMapping("/admin/admin_new")
+    public String newUser(Model model) {
+        model.addAttribute("user", new User());
+        return "/admin/admin_new";
     }
 
-    @GetMapping("admin/{id}/update")
-    public String update(Model model, @PathVariable("id") Long id) {
-        model.addAttribute("updateUser", userService.findById(id));
-        return "admin/edit";
+    @PostMapping("/")
+    public String create(@ModelAttribute("user") User user) {
+        service.createUser(user);
+        return "redirect:/admin/admin_panel";
     }
 
-    @PatchMapping("admin/{id}")
-    public String updated(@ModelAttribute("redirectAll") User user, @PathVariable("id") Long id) {
-        userService.update(user, id);
-        return "redirect:/admin";
+    @GetMapping("/index/{id}/edit")
+    public String updateUser(Model model, @PathVariable("id") Long id) {
+        model.addAttribute("user", service.readUser(id));
+        return "/admin/admin_update";
     }
 
-    @DeleteMapping("admin/{id}")
-    public String delete(@PathVariable("id") Long id){
-        userService.delete(id);
-        return "redirect:/admin";
+    @PatchMapping("/index/update")
+    public String update(@ModelAttribute("user") User newUser) {
+        service.updateUser(newUser);
+        return "redirect:/admin/admin_panel";
+    }
+
+    @DeleteMapping("/index/delete")
+    public String delete(@ModelAttribute("user") User user) {
+        service.deleteUser(user.getId());
+        return "redirect:/admin/admin_panel";
     }
 }

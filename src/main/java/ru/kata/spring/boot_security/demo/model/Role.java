@@ -8,6 +8,7 @@ import java.util.List;
 @Entity
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,19 +19,11 @@ public class Role implements GrantedAuthority {
     @ManyToMany
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name="user_id"))
-    List<User> userList;
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> users;
 
 
     public Role() {
-    }
-
-    public List<User> getUserList() {
-        return userList;
-    }
-
-    public void setUserList(List<User> userList) {
-        this.userList = userList;
     }
 
     public Role(Long id, String role) {
@@ -53,7 +46,6 @@ public class Role implements GrantedAuthority {
     public void setRole(String role) {
         this.role = role;
     }
-
 
     @Override
     public String getAuthority() {

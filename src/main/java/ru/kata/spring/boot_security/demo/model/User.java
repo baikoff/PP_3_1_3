@@ -15,23 +15,37 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column
-    private String username;
+    private String name; // уникальное значение
+
+    @Column(name = "surname")
+    private String surname;
+
     @Column
-    private String secondName;
+    private int age;
+
+    @Column
+    private String email;
+
     @Column
     private String password;
 
+    @Column
+    private Long roleInd;
+
     @ManyToMany
-    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"),inverseJoinColumns = @JoinColumn(name="role_id"))
+    @JoinTable(name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
     public User() {
+
     }
 
-    public User(String username, String secondName, String password, Set<Role> roles) {
-        this.username = username;
-        this.secondName = secondName;
+    public User(String name, String password, Set<Role> roles) {
+        this.name = name;
         this.password = password;
         this.roles = roles;
     }
@@ -44,28 +58,36 @@ public class User implements UserDetails {
         this.id = id;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getName() {
+        return name;
     }
 
-    public String getSecondName() {
-        return secondName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setSecondName(String secondName) {
-        this.secondName = secondName;
+    public String getSurname() {
+        return surname;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public int getAge() {
+        return age;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
@@ -80,7 +102,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return name;
     }
 
     @Override
@@ -102,4 +124,37 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public Long getRoleInd() {
+        return roleInd;
+    }
+
+    public void setRoleInd(Long roleInd) {
+        this.roleInd = roleInd;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public String rolesToString() {
+
+        if (roleInd == 1) {
+            return "[Admin]";
+        } else if (roleInd == 2) {
+            return "[User]";
+        } else if (roleInd == 3) {
+            return "[Admin, User]";
+        }
+        return "Нет роли";
+    }
+
 }

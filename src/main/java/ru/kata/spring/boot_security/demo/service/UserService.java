@@ -2,47 +2,58 @@ package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.dao.RoleDAO;
 import ru.kata.spring.boot_security.demo.dao.UserDAO;
 import ru.kata.spring.boot_security.demo.model.User;
 
+import java.security.Principal;
 import java.util.List;
 
 @Service
 public class UserService {
 
-    private final UserDAO userDAO;
 
-    public UserService(UserDAO userDAO) {
-        this.userDAO = userDAO;
+    private final UserDAO userDao;
+    private final RoleDAO roleDao;
+
+    public UserService(UserDAO userDao, RoleDAO roleDao) {
+        this.userDao = userDao;
+        this.roleDao = roleDao;
     }
 
     @Transactional
-    public void delete(Long id) {
-        userDAO.delete(id);
+    public void createUser(User user) {
+        userDao.createUser(user);
     }
 
     @Transactional
-    public void saveUser(User user) {
-        userDAO.save(user);
+    public User readUser(Long id) {
+        return userDao.readUser(id);
     }
 
     @Transactional
-    public User findById(Long id) {
-        return userDAO.findById(id);
+    public void updateUser(User user) {
+        userDao.updateUser(user);
     }
 
     @Transactional
-    public List<User> getAllUsers() {
-        return userDAO.getAllUsers();
+    public void deleteUser(Long id) {
+        userDao.deleteUser(id);
     }
 
     @Transactional
-    public User update(User user, Long id) {
-        return userDAO.update(user, id);
+    public User getUserByName(String name) {
+        return userDao.getUserByName(name);
     }
 
     @Transactional
-    public User findBiName(String name) {
-        return userDAO.findByName(name);
+    public List<User> allUsers() {
+        return userDao.allUsers();
+    }
+
+    @Transactional
+    public boolean isAllowed(Long id, Principal principal) {
+        return userDao.isAllowed(id, principal);
     }
 }
+
