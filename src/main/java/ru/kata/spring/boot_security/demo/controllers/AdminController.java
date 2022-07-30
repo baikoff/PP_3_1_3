@@ -1,11 +1,10 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.service.UserService;
+import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
 import java.security.Principal;
 
@@ -13,8 +12,11 @@ import java.security.Principal;
 @RequestMapping("/")
 public class AdminController {
 
-    @Autowired
-    private UserService service;
+    private final UserServiceImpl service;
+
+    public AdminController(UserServiceImpl service) {
+        this.service = service;
+    }
 
 
     @GetMapping("/admin")
@@ -27,12 +29,7 @@ public class AdminController {
 
     @GetMapping("/index/{id}")
     public String show(@PathVariable("id") Long id, Model model, Principal principal) {
-        if (!service.isAllowed(id, principal)) {
-            id = service.getUserByName(principal.getName()).getId();
-            model.addAttribute(service.getUserByName(principal.getName()));
-        } else {
-            model.addAttribute(service.readUser(id));
-        }
+        model.addAttribute("userById", service.readUser(id));
         return "/index";
     }
 
@@ -52,7 +49,7 @@ public class AdminController {
     @PostMapping("/")
     public String create(@ModelAttribute("user") User user) {
         service.createUser(user);
-        return "redirect:/admin/admin_panel";
+        return "redirect:/admin";
     }
 
     @GetMapping("/index/{id}/edit")
@@ -64,12 +61,12 @@ public class AdminController {
     @PatchMapping("/index/update")
     public String update(@ModelAttribute("user") User newUser) {
         service.updateUser(newUser);
-        return "redirect:/admin/admin_panel";
+        return "redirect:/admin";
     }
 
     @DeleteMapping("/index/delete")
     public String delete(@ModelAttribute("user") User user) {
         service.deleteUser(user.getId());
-        return "redirect:/admin/admin_panel";
+        return "redirect:/admin";
     }
 }
